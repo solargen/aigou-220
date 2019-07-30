@@ -1,0 +1,24 @@
+aigou-eureka   注册中心
+（1）依赖
+    springboot的web支持
+    springboot的test
+    euraka的服务端支持
+（2）配置
+    server:
+      port: 6001
+    eureka:
+      instance:
+        hostname: localhost
+      client:
+        registerWithEureka: false
+        fetchRegistry: false
+        serviceUrl:
+          defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+（3）启动类
+（4）测试
+
+小扩展：
+可以为Eureka注册中心添加身份认证
+
+spring-boot-starter-security
