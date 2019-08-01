@@ -3,8 +3,13 @@ package cn.itsource.aigou.service.impl;
 import cn.itsource.aigou.domain.ProductType;
 import cn.itsource.aigou.mapper.ProductTypeMapper;
 import cn.itsource.aigou.service.IProductTypeService;
+import cn.itsource.basic.util.AjaxResult;
+import cn.itsource.common.client.RedisClient;
+import cn.itsource.common.client.StaticPageClient;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,12 +28,68 @@ import java.util.Map;
 @Service
 public class ProductTypeServiceImpl extends ServiceImpl<ProductTypeMapper, ProductType> implements IProductTypeService {
 
+    //由于依赖的openfeign，会创建接口的动态代理对象交给spring管理
+    @Autowired
+    private RedisClient redisClient;
+    @Autowired
+    private StaticPageClient staticPageClient;
+
+    /**
+     * 生成主页面
+     *
+     * 先根据product.type.vm生成一个product.type.vm.html
+     *
+     * 再根据home.vm生成主页面
+     *
+     */
+    @Override
+    public void genHomePage() {
+
+        //第一步 ： 生成product.type.vm.html
+        Map<String,Object> map = new HashMap<>();
+
+        String templatePath = "E:\\ideaProject\\aigou-parent\\aigou-product-parent\\aigou-product-service\\src\\main\\resources\\template\\product.type.vm";
+        String targetPath = "E:\\ideaProject\\aigou-parent\\aigou-product-parent\\aigou-product-service\\src\\main\\resources\\template\\product.type.vm.html";
+        //model 就是List 存放所有的商品类型
+        List<ProductType> productTypes = loadTypeTree();
+        map.put("model",productTypes);
+        map.put("templatePath",templatePath);
+        map.put("targetPath",targetPath);
+        staticPageClient.genStaticPage(map);
+
+        //第二步 ： 生成home.html
+        map = new HashMap<>();
+        templatePath = "E:\\ideaProject\\aigou-parent\\aigou-product-parent\\aigou-product-service\\src\\main\\resources\\template\\home.vm";
+        targetPath = "E:\\ideaProject\\aigou-web-parent\\aigou-web-home\\home.html";
+        //model 中要有一个数据是staticRoot
+        Map<String,String> model = new HashMap<>();
+        model.put("staticRoot","E:\\ideaProject\\aigou-parent\\aigou-product-parent\\aigou-product-service\\src\\main\\resources\\");
+        map.put("model",model);
+        map.put("templatePath",templatePath);
+        map.put("targetPath",targetPath);
+
+        staticPageClient.genStaticPage(map);
+
+
+    }
+
+
     @Override
     public List<ProductType> loadTypeTree() {
-        //递归方式实现
-        //return recursive(0L);
-        return loop();
+        //从redis中获取数据
+        AjaxResult result = redisClient.get("productTypes");
+        String productTypesJsonStr = (String) result.getRestObj();
+        List<ProductType> productTypes = JSON.parseArray(productTypesJsonStr, ProductType.class);
+        //判断是否有值
+        if(productTypes==null||productTypes.size()<=0){
+            //没有则查询数据库，并将数据缓存到redis中
+            productTypes = loop();
+            redisClient.set("productTypes",JSON.toJSONString(productTypes));
+        }
+        //返回数据
+        return productTypes;
     }
+
 
     /**
      * 循环方式
@@ -75,9 +136,6 @@ public class ProductTypeServiceImpl extends ServiceImpl<ProductTypeMapper, Produ
         }
         return parents;
     }
-
-
-
 
 
 }
