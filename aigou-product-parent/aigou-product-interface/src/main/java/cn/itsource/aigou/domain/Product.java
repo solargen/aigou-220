@@ -114,6 +114,9 @@ public class Product extends Model<Product> {
     @TableField("badCommentCount")
     private Integer badCommentCount;
 
+    @TableField("medias")
+    private String medias;
+
     @TableField(exist = false)
     private ProductType productType;
 
@@ -337,5 +340,13 @@ public class Product extends Model<Product> {
 
     public void setProductExt(ProductExt productExt) {
         this.productExt = productExt;
+    }
+
+    public String getMedias() {
+        return medias;
+    }
+
+    public void setMedias(String medias) {
+        this.medias = medias;
     }
 }

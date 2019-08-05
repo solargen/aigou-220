@@ -2,6 +2,7 @@ package cn.itsource.aigou.mapper;
 
 import cn.itsource.aigou.domain.Specification;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Component;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author solargen
  * @since 2019-08-04
  */
+@Component
 public interface SpecificationMapper extends BaseMapper<Specification> {
 
 }
