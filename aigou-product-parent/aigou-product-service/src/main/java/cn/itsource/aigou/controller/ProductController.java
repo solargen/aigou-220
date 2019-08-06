@@ -122,4 +122,24 @@ public class ProductController {
             return AjaxResult.me().setSuccess(false).setMessage("操作失败!"+e.getMessage());
         }
     }
+
+    @PostMapping("/updateSkuProperties")
+    public AjaxResult updateSkuProperties(@RequestBody Map<String,Object> param){
+        //获取参数 -- debug查看参数类型
+        long productId = (Integer)param.get("productId");
+        List<Map<String,String>> skus = (List<Map<String, String>>) param.get("skus");
+        List<Map<String,String>> skuProperties = (List<Map<String, String>>) param.get("skuProperties");
+
+        //调用service的一个方法（保证同一个事务）
+        try {
+            productService.updateSkuProperties(productId,skus,skuProperties);
+            return AjaxResult.me().setSuccess(true).setMessage("成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("失败!"+e.getMessage());
+        }
+    }
+
+
+
 }

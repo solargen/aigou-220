@@ -2,9 +2,11 @@ package cn.itsource.aigou.service.impl;
 
 import cn.itsource.aigou.domain.Product;
 import cn.itsource.aigou.domain.ProductExt;
+import cn.itsource.aigou.domain.Sku;
 import cn.itsource.aigou.domain.Specification;
 import cn.itsource.aigou.mapper.ProductExtMapper;
 import cn.itsource.aigou.mapper.ProductMapper;
+import cn.itsource.aigou.mapper.SkuMapper;
 import cn.itsource.aigou.mapper.SpecificationMapper;
 import cn.itsource.aigou.query.ProductQuery;
 import cn.itsource.aigou.service.IProductService;
@@ -17,9 +19,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.FacesRequestAttributes;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -36,6 +42,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     private ProductExtMapper productExtMapper;
     @Autowired
     private SpecificationMapper specificationMapper;
+    @Autowired
+    private SkuMapper skuMapper;
 
     @Override
     public PageList<Product> queryPage(ProductQuery query) {
@@ -83,6 +91,54 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Long productTypeId = product.getProductTypeId();
         List<Specification> specifications = specificationMapper.selectList(new QueryWrapper<Specification>().eq("product_type_id", productTypeId).eq("isSku",1));
         return specifications;
+    }
+
+    /**
+     * sku属性的维护
+     * @param productId
+     * @param skus
+     * @param skuProperties
+     */
+    @Override
+    public void updateSkuProperties(long productId, List<Map<String, String>> skus, List<Map<String, String>> skuProperties) {
+        //修改商品详情表中的skuProperties
+        String skuPropertiesStr = JSON.toJSONString(skuProperties);
+        productExtMapper.updateSkuProperties(productId,skuPropertiesStr);
+        //修改sku
+        //(1)根据商品id删除所有的sku
+        skuMapper.delete(new QueryWrapper<Sku>().eq("productId",productId));
+        //(2)添加
+        List<Sku> skuList = toSkuList(skus,productId);
+        skuList.forEach(sku->{
+            skuMapper.insert(sku);
+        });
+    }
+
+    private List<Sku> toSkuList(List<Map<String, String>> skus, long productId) {
+        List<Sku> list = new ArrayList<>();
+        Sku sku = null;
+        for (Map<String, String> map : skus) {
+            sku = new Sku();
+            sku.setCreateTime(new Date().getTime());
+            sku.setProductId(productId);
+
+            String skuName = "";//萝莉土豪金
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if(entry.getKey().equals("price")||entry.getKey().equals("store")||entry.getKey().equals("indexes")){
+                    continue;
+                }
+                skuName+=entry.getValue();
+            }
+            sku.setSkuName(skuName);
+
+            sku.setPrice(Integer.parseInt(map.get("price")));
+            sku.setAvailableStock(Integer.parseInt(map.get("store")));
+            sku.setIndexs(map.get("indexes"));
+
+            list.add(sku);
+        }
+
+        return list;
     }
 
     /**
