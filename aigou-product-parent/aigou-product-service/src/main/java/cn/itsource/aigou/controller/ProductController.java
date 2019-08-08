@@ -6,6 +6,7 @@ import cn.itsource.aigou.domain.Product;
 import cn.itsource.aigou.query.ProductQuery;
 import cn.itsource.basic.util.AjaxResult;
 import cn.itsource.basic.util.PageList;
+import cn.itsource.basic.util.StrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -137,6 +138,40 @@ public class ProductController {
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.me().setSuccess(false).setMessage("失败!"+e.getMessage());
+        }
+    }
+
+    /**
+     * 上架
+     * @param ids
+     * @return
+     */
+    @GetMapping("/onSale")
+    public AjaxResult onSale(String ids){
+        List<Long> idsLong = StrUtils.splitStr2LongArr(ids);
+        try {
+            productService.onSale(idsLong);
+            return AjaxResult.me().setSuccess(true).setMessage("上架成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("上架失败!"+e.getMessage());
+        }
+    }
+
+    /**
+     * 上架
+     * @param ids
+     * @return
+     */
+    @GetMapping("/offSale")
+    public AjaxResult offSale(String ids){
+        List<Long> idsLong = StrUtils.splitStr2LongArr(ids);
+        try {
+            productService.offSale(idsLong);
+            return AjaxResult.me().setSuccess(true).setMessage("下架成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("下架失败!"+e.getMessage());
         }
     }
 
