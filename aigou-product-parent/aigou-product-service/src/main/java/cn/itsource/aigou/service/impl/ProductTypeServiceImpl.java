@@ -4,6 +4,7 @@ import cn.itsource.aigou.domain.ProductType;
 import cn.itsource.aigou.mapper.ProductTypeMapper;
 import cn.itsource.aigou.service.IProductTypeService;
 import cn.itsource.basic.util.AjaxResult;
+import cn.itsource.basic.util.StrUtils;
 import cn.itsource.common.client.RedisClient;
 import cn.itsource.common.client.StaticPageClient;
 import com.alibaba.fastjson.JSON;
@@ -73,6 +74,29 @@ public class ProductTypeServiceImpl extends ServiceImpl<ProductTypeMapper, Produ
 
     }
 
+    /**
+     * 面包屑
+     * @param productTypeId
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> loadCrumbs(Long productTypeId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        //查询当前类型和所有的父类型
+        ProductType productType = baseMapper.selectById(productTypeId);
+        List<Long> ids = StrUtils.splitStr2LongArr(productType.getPath(), "\\.");
+        Map<String,Object> map = null;
+        for (Long id : ids) {
+            map = new HashMap<>();
+            ProductType current = baseMapper.selectById(id);
+            map.put("currentType",current);
+            List<ProductType> otherTypes = baseMapper.selectList(new QueryWrapper<ProductType>().eq("pid", current.getPid()).ne("id",current.getId()));
+            map.put("otherTypes",otherTypes);
+            list.add(map);
+        }
+        return list;
+    }
+
 
     @Override
     public List<ProductType> loadTypeTree() {
@@ -140,6 +164,14 @@ public class ProductTypeServiceImpl extends ServiceImpl<ProductTypeMapper, Produ
             }
         }
         return parents;
+    }
+
+    public static void main(String[] args) {
+        String str = ".1.2.6.";
+        List<Long> longs = StrUtils.splitStr2LongArr(str, "\\.");
+        for (Long aLong : longs) {
+            System.out.println(aLong);
+        }
     }
 
 

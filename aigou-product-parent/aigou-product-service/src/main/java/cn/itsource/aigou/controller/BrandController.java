@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/brand")
@@ -89,5 +90,39 @@ public class BrandController {
     public PageList<Brand> json(@RequestBody BrandQuery query)
     {
         return brandService.queryPage(query);
+    }
+
+    /**
+     * 根据类型编号查询品牌信息
+     * @param productTypeId
+     * @return
+     */
+    @GetMapping("/queryBrandByProductTypeId")
+    public AjaxResult queryBrandByProductTypeId(@RequestParam("productTypeId") Long productTypeId){
+        try {
+            List<Brand> list = brandService.queryBrandByProductTypeId(productTypeId);
+            return AjaxResult.me().setSuccess(true).setRestObj(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("系统异常!");
+        }
+    }
+
+    /**
+     * 查询所有品牌的首字母
+     * @param productTypeId
+     * @return
+     */
+    @GetMapping("/queryBrandFirstLetters")
+    public AjaxResult queryBrandFirstLetters(@RequestParam("productTypeId") Long productTypeId){
+        try {
+            Set<String> letters = brandService.queryBrandFirstLetters(productTypeId);
+            return AjaxResult.me().setSuccess(true).setRestObj(letters);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("系统异常!");
+        }
+
+
     }
 }

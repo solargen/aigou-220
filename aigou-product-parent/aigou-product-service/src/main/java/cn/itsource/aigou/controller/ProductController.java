@@ -7,6 +7,7 @@ import cn.itsource.aigou.query.ProductQuery;
 import cn.itsource.basic.util.AjaxResult;
 import cn.itsource.basic.util.PageList;
 import cn.itsource.basic.util.StrUtils;
+import cn.itsource.common.domain.ProductDoc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -148,7 +149,7 @@ public class ProductController {
      */
     @GetMapping("/onSale")
     public AjaxResult onSale(String ids){
-        List<Long> idsLong = StrUtils.splitStr2LongArr(ids);
+        List<Long> idsLong = StrUtils.splitStr2LongArr(ids,",");
         try {
             productService.onSale(idsLong);
             return AjaxResult.me().setSuccess(true).setMessage("上架成功!");
@@ -165,13 +166,37 @@ public class ProductController {
      */
     @GetMapping("/offSale")
     public AjaxResult offSale(String ids){
-        List<Long> idsLong = StrUtils.splitStr2LongArr(ids);
+        List<Long> idsLong = StrUtils.splitStr2LongArr(ids,",");
         try {
             productService.offSale(idsLong);
             return AjaxResult.me().setSuccess(true).setMessage("下架成功!");
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.me().setSuccess(false).setMessage("下架失败!"+e.getMessage());
+        }
+    }
+
+    /**
+     * 在线商城商品列表
+     *  只能查询出上架了的商品，所以我们要到es中查询
+     * @param params 查询的参数
+     *                  keyword
+     *                  brandId
+     *                  productTypeId
+     *                  minPrice
+     *                  maxPrice
+     *                  sortColumn  xl   xp   pl   jg   rq
+     *                  sortType    asc  desc
+     * @return
+     */
+    @PostMapping("/queryOnSaleProduct")
+    public AjaxResult queryOnSaleProduct(@RequestBody Map<String,Object> params){
+        try {
+            PageList<ProductDoc> pageList = productService.queryOnSaleProduct(params);//优化
+            return AjaxResult.me().setSuccess(true).setRestObj(pageList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("系统异常"+e.getMessage());
         }
     }
 

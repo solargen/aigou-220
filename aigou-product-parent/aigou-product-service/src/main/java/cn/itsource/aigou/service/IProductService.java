@@ -3,7 +3,9 @@ package cn.itsource.aigou.service;
 import cn.itsource.aigou.domain.Product;
 import cn.itsource.aigou.domain.Specification;
 import cn.itsource.aigou.query.ProductQuery;
+import cn.itsource.basic.util.AjaxResult;
 import cn.itsource.basic.util.PageList;
+import cn.itsource.common.domain.ProductDoc;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -34,4 +36,11 @@ public interface IProductService extends IService<Product> {
     void onSale(List<Long> idsLong);
     //下架
     void offSale(List<Long> idsLong);
+
+    /**
+     * 在线商城搜索上架的商品
+     * @param params
+     * @return
+     */
+    PageList<ProductDoc> queryOnSaleProduct(Map<String, Object> params);
 }

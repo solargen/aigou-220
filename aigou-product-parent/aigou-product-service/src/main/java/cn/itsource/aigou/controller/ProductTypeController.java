@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/productType")
@@ -98,6 +99,30 @@ public class ProductTypeController {
         } catch (Exception e) {
             e.printStackTrace();
             return AjaxResult.me().setSuccess(false).setMessage("失败！"+e.getMessage());
+        }
+    }
+
+    /**
+     * 列表页面包屑的加载
+     *
+     * 返回数据的结构
+     * List<Map<String,Object>>
+     *
+     *     Map有两个key
+     *      current 当前类型
+     *      others 同级别的其他类型
+     *
+     * @param productTypeId
+     * @return
+     */
+    @GetMapping("/crumbs")
+    public AjaxResult crumbs(@RequestParam("productTypeId") Long productTypeId){
+        try {
+            List<Map<String,Object>> list = productTypeService.loadCrumbs(productTypeId);
+            return AjaxResult.me().setSuccess(true).setRestObj(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.me().setSuccess(false).setMessage("系统异常!");
         }
     }
 

@@ -6,6 +6,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
 @FeignClient(value = "COMMON-SERVICE")
 @RequestMapping("/es")
 public interface ProductESClient{
@@ -41,6 +43,14 @@ public interface ProductESClient{
      */
     @PostMapping("/deleteBatch")
     public AjaxResult deleteBatch(@RequestBody List<Long> ids);
+
+    /**\
+     * es检索
+     * @param params
+     * @return
+     */
+    @GetMapping("/query")
+    public AjaxResult query(@RequestBody Map<String,Object> params);
 
 
 }

@@ -4,6 +4,7 @@ import cn.itsource.aigou.domain.ProductType;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -22,4 +23,11 @@ public interface IProductTypeService extends IService<ProductType> {
     List<ProductType> loadTypeTree();
 
     void genHomePage();
+
+    /**
+     * 加载类型面包屑
+     * @param productTypeId
+     * @return
+     */
+    List<Map<String,Object>> loadCrumbs(Long productTypeId);
 }

@@ -10,6 +10,7 @@ import cn.itsource.aigou.mapper.SkuMapper;
 import cn.itsource.aigou.mapper.SpecificationMapper;
 import cn.itsource.aigou.query.ProductQuery;
 import cn.itsource.aigou.service.IProductService;
+import cn.itsource.basic.util.AjaxResult;
 import cn.itsource.basic.util.PageList;
 import cn.itsource.common.client.ProductESClient;
 import cn.itsource.common.domain.ProductDoc;
@@ -75,6 +76,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         baseMapper.offSale(idsLong,new Date().getTime());
         //删除es
         productESClient.deleteBatch(idsLong);
+    }
+    /**
+     * 在线商城搜索上架的商品
+     * @param params
+     * @return
+     */
+    @Override
+    public PageList<ProductDoc> queryOnSaleProduct(Map<String, Object> params) {
+        AjaxResult query = productESClient.query(params);
+        PageList<ProductDoc> pageList = (PageList<ProductDoc>) query.getRestObj();
+        return pageList;
     }
 
     /**

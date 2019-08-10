@@ -1,5 +1,7 @@
 package cn.itsource.basic.util;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -15,9 +17,9 @@ public class StrUtils {
      * @param str
      * @return
      */
-    public static String[] splitStr2StrArr(String str) {
+    public static String[] splitStr2StrArr(String str,String splitStr) {
         if (str != null && !str.equals("")) {
-            return str.split(",");
+            return str.split(splitStr);
         }
         return null;
     }
@@ -29,17 +31,20 @@ public class StrUtils {
      * @param str
      * @return
      */
-    public static List<Long> splitStr2LongArr(String str) {
-        String[] strings = splitStr2StrArr(str);
+    public static List<Long> splitStr2LongArr(String str,String splitStr) {
+        String[] strings = splitStr2StrArr(str,splitStr);
         if (strings == null) return null;
 
         List<Long> result = new ArrayList<>();
         for (String string : strings) {
-            result.add(Long.parseLong(string));
+            if(StringUtils.isNotEmpty(string)){
+                result.add(Long.parseLong(string));
+            }
         }
 
         return result;
     }
+
 
     public static String getRandomString(int length) {
         String str = "0123456789";
